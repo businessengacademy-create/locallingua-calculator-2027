@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Local Lingua — Student Calculator 2027</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* ── UNAUTHORIZED ── */
+        #unauthorizedScreen {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(216, 48, 87, 0.15);
+            max-width: 420px;
+            width: 100%;
+            padding: 50px 40px;
+            text-align: center;
+        }
+        #unauthorizedScreen .lock-icon { font-size: 56px; margin-bottom: 20px; display: block; }
+        #unauthorizedScreen h2 { color: #d83057; font-size: 26px; font-weight: 700; margin-bottom: 12px; }
+        #unauthorizedScreen p { color: #888; font-size: 14px; line-height: 1.6; }
+        #unauthorizedScreen .http-badge {
+            display: inline-block;
+            background: #fdf0f3;
+            border: 2px solid #f5c6d0;
+            color: #d83057;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 8px;
+            padding: 6px 14px;
+            margin-top: 20px;
+            letter-spacing: 0.5px;
+        }
+
+        /* ── CALCULATOR ── */
+        .container {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(216, 48, 87, 0.15);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+        h1 { color: #d83057; font-size: 32px; font-weight: 700; margin-bottom: 10px; text-align: center; }
+        .subtitle { color: #666; text-align: center; margin-bottom: 40px; font-size: 14px; }
+        .form-group { margin-bottom: 25px; }
+        label { display: block; color: #000; font-weight: 600; margin-bottom: 8px; font-size: 14px; }
+        select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+            background: white;
+            color: #000;
+        }
+        select:focus { outline: none; border-color: #d83057; box-shadow: 0 0 0 3px rgba(216, 48, 87, 0.1); }
+        select:hover { border-color: #d83057; }
+        .result-container {
+            background: linear-gradient(135deg, #d83057 0%, #c02850 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(216, 48, 87, 0.3);
+        }
+        .result-label { color: white; font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; opacity: 0.9; }
+        .result-value { color: white; font-size: 48px; font-weight: 700; margin-bottom: 15px; }
+        .breakdown { color: white; font-size: 13px; opacity: 0.85; line-height: 1.6; }
+        .button-group { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 25px; }
+        button {
+            padding: 16px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-reset { background: white; color: #d83057; border: 2px solid #d83057; }
+        .btn-reset:hover { background: #d83057; color: white; }
+        .input-hint { font-size: 12px; color: #999; margin-top: 5px; }
+        .input-hint.warning { color: #d83057; }
+        .hidden { display: none; }
+        .info-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .info-card {
+            background: #fdf0f3;
+            border: 2px solid #f5c6d0;
+            border-radius: 12px;
+            padding: 16px 12px;
+            text-align: center;
+        }
+        .info-card-value { color: #d83057; font-size: 26px; font-weight: 700; line-height: 1; margin-bottom: 6px; }
+        .info-card-label { color: #555; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .info-card-sub { color: #aaa; font-size: 11px; margin-top: 3px; }
+        @media (max-width: 600px) {
+            .container { padding: 30px 20px; }
+            h1 { font-size: 26px; }
+            .result-value { font-size: 36px; }
+        }
+        @media (max-width: 400px) { .info-cards { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <!-- ── UNAUTHORIZED ── -->
+    <div id="unauthorizedScreen">
+        <span class="lock-icon">🔒</span>
+        <h2>Unauthorized</h2>
+        <p>This tool is restricted to internal use only.<br>Please use the link provided by your team.</p>
+        <div class="http-badge">401 Unauthorized</div>
+    </div>
+
+    <!-- ── CALCULATOR ── -->
+    <div class="container" id="appScreen">
+        <h1>🌍 Local Lingua</h1>
+        <p class="subtitle">Language courses calculator · 2027</p>
+
+        <form id="calcForm">
+
+            <div class="form-group">
+                <label for="language">Language</label>
+                <select id="language">
+                    <option value="">Select language</option>
+                    <option value="portuguese">Portuguese</option>
+                    <option value="polish">Polish</option>
+                    <option value="czech">Czech</option>
+                </select>
+            </div>
+
+            <div class="form-group hidden" id="infoCardsContainer">
+                <div class="info-cards">
+                    <div class="info-card">
+                        <div class="info-card-value">24</div>
+                        <div class="info-card-label">Cost per Lesson, €</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-value">5</div>
+                        <div class="info-card-label">People in Group</div>
+                        <div class="info-card-sub">range: 4–6</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-value">2</div>
+                        <div class="info-card-label">Lessons per Week</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group hidden" id="periodContainer">
+                <label for="startMonth">Month of Joining</label>
+                <select id="startMonth">
+                    <option value="">Select month</option>
+                    <option value="1">January 2027</option>
+                    <option value="2">February 2027</option>
+                    <option value="3">March 2027</option>
+                    <option value="4">April 2027</option>
+                    <option value="5">May 2027</option>
+                    <option value="6">June 2027</option>
+                    <option value="7">July 2027</option>
+                    <option value="8">August 2027</option>
+                    <option value="9">September 2027</option>
+                    <option value="10">October 2027</option>
+                    <option value="11">November 2027</option>
+                    <option value="12">December 2027</option>
+                </select>
+            </div>
+
+            <div class="form-group hidden" id="durationContainer">
+                <label for="duration">Training Period</label>
+                <select id="duration">
+                    <option value="">Select period</option>
+                    <option value="3">3 months</option>
+                    <option value="6">6 months</option>
+                    <option value="9">9 months</option>
+                    <option value="12">12 months</option>
+                </select>
+                <div class="input-hint" id="periodHint">Select month of joining and training period</div>
+            </div>
+
+            <div class="result-container hidden" id="resultContainer">
+                <div class="result-label">Total Investment per Student</div>
+                <div class="result-value" id="totalCost">€0.00</div>
+                <div class="breakdown" id="breakdown"></div>
+            </div>
+
+            <div class="button-group hidden" id="buttonGroup">
+                <button type="button" class="btn-reset" onclick="resetForm()">Reset</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        /* ── ACCESS CONTROL ── */
+        const SECRET_KEY = 'esfera-2026-internal';
+        const params = new URLSearchParams(window.location.search);
+        const ACCESS_CHECK_ENABLED = true; // false — отключить проверку ключа
+        if (!ACCESS_CHECK_ENABLED || params.get('key') === SECRET_KEY) {
+            document.getElementById('appScreen').style.display = 'block';
+        } else {
+            document.getElementById('unauthorizedScreen').style.display = 'block';
+        }
+
+        /* ── CALCULATOR LOGIC ── */
+        const MONTHS = ['','January','February','March','April','May','June',
+                        'July','August','September','October','November','December'];
+
+        // Language → Location display name (Local Lingua maps 1:1 language ↔ country)
+        const LANGUAGE_LOCATIONS = {
+            portuguese: 'Portugal',
+            polish:     'Poland',
+            czech:      'Czech Republic',
+        };
+
+        const langEl        = document.getElementById('language');
+        const startMonthEl = document.getElementById('startMonth');
+        const durationEl   = document.getElementById('duration');
+        const periodHintEl = document.getElementById('periodHint');
+        const resultEl     = document.getElementById('resultContainer');
+        const totalCostEl  = document.getElementById('totalCost');
+        const breakdownEl  = document.getElementById('breakdown');
+        const form         = document.getElementById('calcForm');
+
+        const YEAR     = 2027;
+
+        function fmtDate(d) {
+            return MONTHS[d.getMonth() + 1] + ' ' + d.getDate() + ', ' + d.getFullYear();
+        }
+        const PRICE    = 24;
+
+        // Auto-remove past months on load
+        (function () {
+            const now = new Date();
+            const currentYear  = now.getFullYear();
+            const currentMonth = now.getMonth() + 1;
+            const select = document.getElementById('startMonth');
+            Array.from(select.options).forEach(opt => {
+                const val = parseInt(opt.value);
+                if (!val) return;
+                if (currentYear > YEAR || (currentYear === YEAR && val < currentMonth)) {
+                    select.removeChild(opt);
+                }
+            });
+        })();
+
+        function show(id) { document.getElementById(id).classList.remove('hidden'); }
+        function hide(id) { document.getElementById(id).classList.add('hidden'); }
+
+        langEl.addEventListener('change', function () {
+            if (!this.value) {
+                ['infoCardsContainer','periodContainer','durationContainer','buttonGroup','resultContainer'].forEach(hide);
+                return;
+            }
+            show('infoCardsContainer');
+            show('periodContainer');
+            show('durationContainer');
+            show('buttonGroup');
+            resultEl.classList.add('hidden');
+            startMonthEl.value = '';
+            durationEl.value   = '';
+            periodHintEl.className = 'input-hint';
+            periodHintEl.textContent = 'Select month of joining and training period';
+        });
+
+        startMonthEl.addEventListener('change', calc);
+        durationEl.addEventListener('change', calc);
+        form.addEventListener('submit', e => { e.preventDefault(); calc(); });
+
+        function calc() {
+            const sm  = parseInt(startMonthEl.value) || 0;
+            const dur = parseInt(durationEl.value) || 0;
+            periodHintEl.className = 'input-hint';
+
+            if (!sm || !dur || !langEl.value) { resultEl.classList.add('hidden'); return; }
+
+            const startDay  = sm === 1 ? 11 : 1;
+            const startDate = new Date(YEAR, sm - 1, startDay);
+            // End date = start + N months − 1 day
+            const END_DATE  = new Date(YEAR, sm - 1 + dur, startDay - 1);
+
+            const days         = Math.round((END_DATE - startDate) / 86400000) + 1;
+            const weeks        = days / 7;
+            const totalLessons = Math.round(weeks * 2);
+            const perPerson    = PRICE / 5;
+            const grand        = perPerson * totalLessons;
+            const langName     = langEl.options[langEl.selectedIndex]?.text || '';
+            const locName      = LANGUAGE_LOCATIONS[langEl.value] || '';
+
+            periodHintEl.textContent = fmtDate(startDate) + ' – ' + fmtDate(END_DATE) + ' (' + dur + ' months, ' +
+                                       Math.round(weeks * 10) / 10 + ' weeks)';
+
+            totalCostEl.textContent = '€' + grand.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            breakdownEl.innerHTML =
+                '<strong>' + fmtDate(startDate) + ' &rarr; ' + fmtDate(END_DATE) + '</strong> (' + dur + ' months)<br>' +
+                Math.round(weeks * 10) / 10 + ' weeks &times; 2 lessons/week = <strong>' + totalLessons + ' lessons</strong><br>' +
+                '€' + PRICE + ' &divide; 5 people = €' + perPerson.toFixed(2) + '/person per lesson<br>' +
+                'Local Lingua &middot; ' + langName + ' &middot; ' + locName;
+
+            resultEl.classList.remove('hidden');
+        }
+
+        function resetForm() {
+            form.reset();
+            ['infoCardsContainer','periodContainer','durationContainer','buttonGroup','resultContainer'].forEach(hide);
+            periodHintEl.textContent = 'Select month of joining and training period';
+        }
+    </script>
+</body>
+</html>
